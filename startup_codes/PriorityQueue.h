@@ -19,21 +19,21 @@ public:
 	virtual ~PriorityQueue() {
 
 	}
-
-	int size() {
+  
+	int size() {   //get the size of U
 		return m_items.size();
 	}
 
-	bool empty() {
+	bool empty() {  //clear U
 		return m_items.empty();
 	}
 
-	void insert(MazeCell* e) {
+	void insert(MazeCell* e) { //insert a mazecell to U
 		m_items.push_back(e);
-		std::push_heap(m_items.begin(), m_items.end(), comparator);
+		std::push_heap(m_items.begin(), m_items.end(), comparator); //put the cell to front if it has the highest priority
 	}
 
-	MazeCell* find(int row, int col) {
+	MazeCell* find(int row, int col) { 
 		for (int i = 0; i < size(); i++) {
 			if (m_items[i]->equals(row, col))
 				return m_items[i];
@@ -43,18 +43,18 @@ public:
 	}
 
 	/* do nothing if [row, col] is not in the queue */
-	void remove(int row, int col) {
+	void remove(int row, int col) {  //remove a cell from U if this cell is in U
 		for (int i = 0; i < size(); i++) {
 			if (!m_items[i]->equals(row, col))
 				continue;
 
 			m_items.erase(m_items.begin() + i);
-			std::make_heap(m_items.begin(), m_items.end(), comparator);
+			std::make_heap(m_items.begin(), m_items.end(), comparator); //put the highest priority cell to front
 			break;
 		}
 	}
 
-	MazeCell* pop() {
+	MazeCell* pop() { 
 		if (size() == 0)
 			return nullptr;
 		MazeCell* t = m_items.front();
@@ -70,7 +70,7 @@ public:
 		return m_items.front();
 	}
 
-	static bool comparator(MazeCell* c1, MazeCell* c2) {
+	static bool comparator(MazeCell* c1, MazeCell* c2) { //compare two cells by Key
 		if (c1->key[0] == c2->key[0])
 			return c1->key[1] > c2->key[1];
 		return c1->key[0] > c2->key[0];
