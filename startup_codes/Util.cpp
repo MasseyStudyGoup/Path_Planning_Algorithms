@@ -116,63 +116,6 @@ int getKey() {
 	return -1;
 }
 
-//--------------------------------------------------------------
-//copy maze (from LPA*) to map (of GridWorld)
-void copyMazeToDisplayMap(GridWorld &gWorld, LpaStar* lpa) {
-	for (int i = 0; i < gWorld.getGridWorldRows(); i++) {
-		for (int j = 0; j < gWorld.getGridWorldCols(); j++) {
-			gWorld.map[i][j].type = lpa->maze[i][j].type;
-			gWorld.map[i][j].h = lpa->maze[i][j].h;
-			gWorld.map[i][j].g = lpa->maze[i][j].g;
-			gWorld.map[i][j].rhs = lpa->maze[i][j].rhs;
-			gWorld.map[i][j].row = lpa->maze[i][j].y;
-			gWorld.map[i][j].col = lpa->maze[i][j].x;
-
-			for (int k = 0; k < 2; k++) {
-				gWorld.map[i][j].key[k] = lpa->maze[i][j].key[k];
-			}
-
-		}
-	}
-	gWorld.map[lpa->start->y][lpa->start->x].h = lpa->start->h;
-	gWorld.map[lpa->start->y][lpa->start->x].g = lpa->start->g;
-	gWorld.map[lpa->start->y][lpa->start->x].rhs = lpa->start->rhs;
-	gWorld.map[lpa->start->y][lpa->start->x].row = lpa->start->y;
-	gWorld.map[lpa->start->y][lpa->start->x].col = lpa->start->x;
-	for (int k = 0; k < 2; k++) {
-		gWorld.map[lpa->start->y][lpa->start->x].key[k] = lpa->start->key[k];
-	}
-
-	gWorld.map[lpa->goal->y][lpa->goal->x].h = lpa->goal->h;
-	gWorld.map[lpa->goal->y][lpa->goal->x].g = lpa->goal->g;
-	gWorld.map[lpa->goal->y][lpa->goal->x].rhs = lpa->goal->rhs;
-	gWorld.map[lpa->goal->y][lpa->goal->x].row = lpa->goal->y;
-	gWorld.map[lpa->goal->y][lpa->goal->x].col = lpa->goal->x;
-	for (int k = 0; k < 2; k++) {
-		gWorld.map[lpa->goal->y][lpa->goal->x].key[k] = lpa->goal->key[k];
-	}
-}
-
-//--------------------------------------------------------------
-//copy map (of GridWorld)to maze (of LPA*)
-void copyDisplayMapToMaze(GridWorld &gWorld, LpaStar* lpa) {
-	for (int i = 0; i < gWorld.getGridWorldRows(); i++) {
-		for (int j = 0; j < gWorld.getGridWorldCols(); j++) {
-			lpa->maze[i][j].type = gWorld.map[i][j].type;
-			lpa->maze[i][j].x = gWorld.map[i][j].col;
-			lpa->maze[i][j].y = gWorld.map[i][j].row;
-		}
-	}
-	vertex startV = gWorld.getStartVertex();
-	vertex goalV = gWorld.getGoalVertex();
-
-	lpa->start->x = gWorld.map[startV.row][startV.col].col;
-	lpa->start->y = gWorld.map[startV.row][startV.col].row;
-	lpa->goal->x = gWorld.map[goalV.row][goalV.col].col;
-	lpa->goal->y = gWorld.map[goalV.row][goalV.col].row;
-
-}
-
 void copyVertex(vertex* pTarget, vertex* pSource){
 	if (pTarget == nullptr || pSource == nullptr)
 		return;
