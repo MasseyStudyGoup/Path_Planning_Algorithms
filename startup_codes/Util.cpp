@@ -35,7 +35,7 @@ int getKey() {
 	}
 
 	if (GetAsyncKeyState(VK_F6) < 0) {
-		//execute A* with strict expanded list
+		//execute IDA*
 		return 106;
 	}
 	if (GetAsyncKeyState(VK_F7) < 0) {
@@ -115,15 +115,6 @@ int getKey() {
 
 	return -1;
 }
-
-void copyVertex(vertex* pTarget, vertex* pSource){
-	if (pTarget == nullptr || pSource == nullptr)
-		return;
-	memcpy(pTarget, pSource, sizeof(vertex));
-	for (int i=0; i<DIRECTIONS; i++)
-		pTarget->move[i] = nullptr;
-}
-
 
 void testPriorityQueue() {
 	double a[8];

@@ -27,7 +27,7 @@ void GridWorld::displayHeader(){
 	    outtextxy(fieldX2-textwidth("start-up codes by n.h.reyes@massey.ac.nz"),fieldY2,"start-up codes by n.h.reyes@massey.ac.nz");
 	    settextjustify(CENTER_TEXT,TOP_TEXT);    
 	    setcolor(GREEN);
-		 outtextxy(x ,y, "F4: hide details, F5: show details, F9: copy display map to Algorithm data structure(maze), F10: run Search");
+		 outtextxy(x ,y, "F4: hide details, F5: show details, F6 IDA*, F7 LPA*, F8 D*Lite, F10: run Search");
 	    y = y + textheight("_");
 	    setcolor(WHITE);
    	    outtextxy(x ,y, "B: block cell, U: unblock cell, H: h-values, K: key-values, S: new START, X: new GOAL, P: cell positions, C: local connections, M: all connections ");
@@ -50,8 +50,11 @@ void GridWorld::displayHeader(){
 	    //path search status
 	    y = y + 2*textheight("_");
 	    setcolor(GREEN);
+
+	    const char* ALGO_NAMES[3] = {"D*Lite", "LPA*", "IDA*"};
 	    if (m_searchStatus == 0){
-	    	outtextxy(x ,y, "Press ENTER to search the shortest path");
+	    	sprintf(info,"Press ENTER to search the shortest path with %s", ALGO_NAMES[g_algorithm]);
+	    	outtextxy(x ,y, info);
 	    }
 	    else if (m_searchStatus == 1){
 	      	outtextxy(x ,y, "Press F3 to show the shortest path.");
@@ -196,6 +199,19 @@ void GridWorld::loadMapAndDisplay(const char* fn) //,int totalRows, int totalCol
   //getch();
 }
 
+void GridWorld::displayPath(vector<vertex*> path){
+	displayHeader();
+	if (path.size() == 0)
+		return;
+	setcolor(RED);
+	setlinestyle(SOLID_LINE, 1, 1);
+	vertex* start = path[0];
+	for (int i=1; i<path.size(); i++){
+		vertex* next = path[i];
+		line(start->centre.x, start->centre.y, next->centre.x, next->centre.y);
+		start = next;
+	}
+}
 
 //find path based on g-values and direct link cost
 void GridWorld::displayPath() 

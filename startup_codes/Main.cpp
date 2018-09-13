@@ -63,7 +63,7 @@ int maxQLength;
 int qLengthAfterSearch;
 
 vector<vertex*> g_changed;
-char g_algorithm = ALGO_IDASTAR; //ALGO_LPASTAR; //ALGO_DSTARTLIET //ALGO_IDASTAR;
+char g_algorithm = ALGO_DSTARTLIET; //ALGO_LPASTAR; //ALGO_DSTARTLIET //ALGO_IDASTAR;
 ///////////////////////////////////////////////////////////////////////////////
 DStarLite* g_dsl = nullptr;
 LpaStar* g_lpas = nullptr;
@@ -235,11 +235,29 @@ void runSimulation(char *fileName) {
 			action = -1;
 			break;
 		case 103:
-			if (grid_world.getSearchStatus() == 1)
-				grid_world.displayPath();
+			if (grid_world.getSearchStatus() == 1){
+				if (g_algorithm == ALGO_IDASTAR){
+					IdaStarPath* mazePath = g_idas->getPath();
+					vector<vertex*> path;
+					for (int i = 0; i < mazePath->cells.size(); i++) {
+						path.push_back(grid_world.getVertex(mazePath->cells[i]->row, mazePath->cells[i]->col));
+
+					}
+					grid_world.displayPath(path);
+				}
+				else{
+					grid_world.displayPath();
+				}
+			}
 			break;
 		case 105:
 			grid_world.displayMapWithKeyDetails();
+			break;
+		case 106:
+			if (g_algorithm != ALGO_IDASTAR) {
+				g_algorithm = ALGO_IDASTAR;
+				grid_world.setSearchStatus(0);
+			}
 			break;
 		case 107:
 			if (g_algorithm != ALGO_LPASTAR) {

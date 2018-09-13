@@ -18,7 +18,6 @@ public:
 
 	double* calcKey(MazeCell* s);
 
-	double cost(MazeCell* u, MazeCell* s);
 	//h(start, s)
 	double calcH(MazeCell* s);
 

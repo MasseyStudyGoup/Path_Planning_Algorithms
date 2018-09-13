@@ -62,15 +62,6 @@ void DStarLite::updateH(){
 	}
 }
 
-//seems in GridWorld all costs are 1
-double DStarLite::cost(MazeCell* u, MazeCell* s) {
-	int diffY = abs(u->row - s->row);
-	int diffX = abs(u->col - s->col);
-	if (diffX == 0 || diffY == 0) //vertical or horizontal
-		return 1;
-	return 1.0; //1.414; //sqrt(2)
-}
-
 double* DStarLite::calcKey(MazeCell* s) {
 	s->key[1] = fmin(s->g, s->rhs);
 	s->key[0] = fmin(s->g, s->rhs + calcH(s) + m_km);
@@ -189,6 +180,7 @@ void DStarLite::computeShortestPath() {
 }
 
 bool DStarLite::findPath() {
+	cout<<"Search the shortest path with D*Lite."<<endl;
 	m_pLast = m_pStart;
 	initialize();
 	try{

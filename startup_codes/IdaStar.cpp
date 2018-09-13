@@ -40,8 +40,8 @@ double IdaStar::calcH(MazeCell* s) {
 	int diffX = abs(m_pGoal->col - s->col);
 	if (HEURISTIC == MANHATTAN) {
 		s->h = fmax(diffY, diffX);
-	} else { // EUCLIDEAN no need to calculate square root
-		s->h = diffY * diffY + diffX * diffX;
+	} else {
+		s->h = sqrt(diffY * diffY + diffX * diffX);
 	}
 
 	return s->h;
@@ -73,6 +73,12 @@ void IdaStar::getNeighbours(MazeCell* u, MazeCell** ptrNeighbours) {
 	}
 }
 
+double IdaStar::cost(MazeCell* u, MazeCell* s) {
+	int diffY = abs(u->row - s->row);
+	int diffX = abs(u->col - s->col);
+	return sqrt(diffY*diffY+diffX*diffX);
+}
+
 void IdaStar::initialise() {
 	m_path.empty();
 	for (int i = 1; i < m_rows - 1; i++) {
@@ -84,7 +90,7 @@ void IdaStar::initialise() {
 	}
 
 	if (DStarLite::equal(0, m_cutoff)) {
-		m_cutoff = m_pStart->h;
+		m_cutoff = cost(m_pStart, m_pGoal);
 	} else {
 		m_cutoff = m_nextCutOff;
 	}
@@ -94,9 +100,7 @@ void IdaStar::initialise() {
 
 	IdaStarPath path;
 	path.addCell(m_pStart);
-	path.cost = 0;
 	m_path.push(path);
-
 }
 
 void IdaStar::expandPath(IdaStarPath* path) {
@@ -110,7 +114,7 @@ void IdaStar::expandPath(IdaStarPath* path) {
 		if (succ[i] == nullptr)
 			continue;
 
-		double f = path->cost + u->linkCost[i] + succ[i]->h;
+		double f = u->g + u->linkCost[i] + succ[i]->h;
 		if (f > m_cutoff) {
 			if (f < m_nextCutOff) {
 				m_nextCutOff = f;
@@ -121,47 +125,42 @@ void IdaStar::expandPath(IdaStarPath* path) {
 		IdaStarPath newPath;
 		newPath.copy(path);
 		newPath.addCell(succ[i]);
-		newPath.cost += u->linkCost[i];
 		m_path.push(newPath);
 
 		succ[i]->visited = true;
 		succ[i]->g = u->g + u->linkCost[i];
 	}
 }
-void IdaStar::markPath(IdaStarPath* path) {
-	if (path == nullptr)
-		return;
 
-	vector<vector<double>> gValues;
-	gValues.resize(m_rows);
-	for (int i = 0; i < m_rows; i++) {
-		gValues[i].resize(m_cols);
-		for (int j = 0; j < m_cols; j++)
-			gValues[i][j] = INF;
-	}
-
-	for (int i = 0; i < path->cells.size(); i++) {
-		MazeCell* u = path->cells[i];
-		gValues[u->row][u->col] = u->g;
-	}
-
-	for (int i = 0; i < m_rows; i++) {
-		for (int j = 0; j < m_cols; j++)
-			m_maze[i][j].g = gValues[i][j];
-	}
+IdaStarPath* IdaStar::getPath() {
+	if (m_path.size() == 0)
+		return nullptr;
+	return &m_path.top();
 }
 
 bool IdaStar::findPath() {
+	cout<<"Search the shortest path with IDA*."<<endl;
 	initialise();
 	while (true) {
 		IdaStarPath path = m_path.top();
 		m_path.pop();
 		if (path.reaches(m_pGoal))	{
-			markPath(&path);
+			m_path.empty();
+			m_path.push(path);
+			cout<<"The shortest path: ";
+			for (int i = 0; i < path.cells.size(); i++) {
+				cout<<"["<<path.cells[i]->row<<", "<<path.cells[i]->col<<"]";
+			}
+			cout<<endl;
 			return true;
 		}
 
+		cout<<"Expand path: ";
+		for (int i=0; i<path.cells.size();i++)
+			cout<<"["<<path.cells[i]->row<<", "<<path.cells[i]->col<<"]";
+		cout<<endl;
 		expandPath(&path);
+
 
 		if (m_path.size() == 0){
 			if (DStarLite::equal(m_nextCutOff, INF)){

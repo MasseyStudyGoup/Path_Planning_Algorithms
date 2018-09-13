@@ -150,21 +150,19 @@ void LpaStar::computeShortestPath() {
 }
 
 bool LpaStar::findPath() {
+	cout<<"Search the shortest path LPA*."<<endl;
 	initialise();
 	try {
+		//the code should be in a endless loop in a production environment,
+		//for demo purpose, we need to return for display the path.
 		computeShortestPath();
-/*
-		if (g_changed.size() == 0)
-			continue;
+
 		for (int i = 0; i < g_changed.size(); i++) {
 			vertex* s = g_changed[i];
 			MazeCell* cell = &m_maze[s->row][s->col];
-			if (cell->type == s->type)
-				continue;
 			cell->copyFrom(*s);
 			updateVertex(cell);
 		}
-		*/
 		return true;
 	} catch (exception & e) {
 		cout << "Standard exception: " << e.what() << endl;

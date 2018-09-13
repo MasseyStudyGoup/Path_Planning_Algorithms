@@ -4,7 +4,6 @@
 #include "globalVariables.h"
 
 int getKey();
-void copyVertex(vertex* pTarget, vertex* pSource);
 
 void testPriorityQueue();
 void test();

@@ -18,10 +18,12 @@ public:
 	void setStart(int startX, int startY);
 	void setGoal(int goalX, int goalY);
 	void updateH();
+	IdaStarPath* getPath();
 
 	friend void updateData(bool fromMazeToMap);
 private:
 	double calcH(MazeCell* s);
+	double cost(MazeCell* u, MazeCell* s);
 	void getNeighbours(MazeCell* u, MazeCell** ptrNeighbours);
 	void initialise();
 
@@ -29,11 +31,6 @@ private:
 	 * the path can not be expanded if for all its successors' f-cost exceeds the threshold
 	 */
 	void expandPath(IdaStarPath* path);
-	/**
-	 * to make use the display mechanism from startup-code, set g values of the cells
-	 * which are not on the path to INF
-	 */
-	void markPath(IdaStarPath* path);
 private:
 	double m_cutoff;
 	double m_nextCutOff; //the minimum among the f-costs that exceeded the threshold
