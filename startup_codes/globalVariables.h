@@ -79,9 +79,9 @@ extern unsigned int HEURISTIC;
 extern int GRIDWORLD_ROWS;
 extern int GRIDWORLD_COLS;
 
-#define ALGO_LPASTAR    0x01
-#define ALGO_DSTARTLIET 0X02
-#define ALGO_IDASTAR    0x04
+#define ALGO_DSTARTLIET 0
+#define ALGO_LPASTAR    1
+#define ALGO_IDASTAR    2
 extern char g_algorithm;
 //////////////////////////////////////////////////////////////////////////////
 //REINFORCEMENT LEARNING
@@ -214,8 +214,6 @@ struct MazeCell {
 
 struct IdaStarPath {
 	vector<MazeCell*> cells;
-	//f-cost of the path
-	double cost;
 
 	MazeCell* last(){
 		return cells[cells.size()-1];
@@ -228,7 +226,6 @@ struct IdaStarPath {
 	void copy(IdaStarPath* p) {
 		if (p == nullptr)
 			return;
-		p->cost = this->cost;
 		for (int i=0; i<p->cells.size(); i++)
 			cells.push_back(p->cells[i]);
 	}

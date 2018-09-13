@@ -48,6 +48,7 @@ public:
 	void displayRLHeader(long maxEpoch);
 
 	void displayPath();
+	void displayPath(vector<vertex*> path);
 	void displayMap();
 	void displayMapWithDetails();
 	void displayMapWithPositionDetails();
