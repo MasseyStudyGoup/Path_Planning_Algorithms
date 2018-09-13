@@ -1,5 +1,5 @@
-Main.exe		: 	Main.o  transform.o LPAstar.o DStarLite.o gridworld.o graphics.o Util.o PriorityQueue.o
-	g++ -g -o Main.exe Main.o transform.o LPAstar.o DStarLite.o gridworld.o graphics.o Util.o PriorityQueue.o -l gdi32 
+Main.exe		: 	Main.o  transform.o LPAstar.o DStarLite.o IdaStar.o gridworld.o graphics.o Util.o PriorityQueue.o
+	g++ -g -o Main.exe Main.o transform.o LPAstar.o DStarLite.o IdaStar.o gridworld.o graphics.o Util.o PriorityQueue.o -l gdi32 
 			
 Main.o		:	Main.cpp graphics.h transform.h LPAstar.h DStarLite.h gridworld.h globalvariables.h Util.h PriorityQueue.h
 	g++ -g -c -std=c++11 -O0    Main.cpp
@@ -12,6 +12,9 @@ LPAstar.o	:	 LPAstar.cpp LPAstar.h
 
 DStarLite.o	:	 DStarLite.cpp DStarLite.h
 	g++ -g -c -std=c++11 -O0    DStarLite.cpp
+	
+IdaStar.o	:	 IdaStar.cpp IdaStar.h
+	g++ -g -c -std=c++11 -O0    IdaStar.cpp
 
 gridworld.o	:	 gridworld.cpp gridworld.h
 	g++ -g -c -std=c++11 -O0    gridworld.cpp
