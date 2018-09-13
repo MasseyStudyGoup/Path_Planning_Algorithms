@@ -81,6 +81,7 @@ extern int GRIDWORLD_COLS;
 
 #define ALGO_LPASTAR    0x01
 #define ALGO_DSTARTLIET 0X02
+#define ALGO_IDASTAR    0x04
 extern char g_algorithm;
 //////////////////////////////////////////////////////////////////////////////
 //REINFORCEMENT LEARNING
@@ -176,6 +177,8 @@ struct MazeCell {
 	double h;
 	double key[2];
 	char type;
+	//only used for IDA*
+	bool visited;
 
 	bool equals(MazeCell* other) {
 		if (other == nullptr)
@@ -209,23 +212,33 @@ struct MazeCell {
 	}
 };
 
-struct LpaStarCell {
-	LpaStarCell* move[DIRECTIONS];
+struct IdaStarPath {
+	vector<MazeCell*> cells;
+	//f-cost of the path
+	double cost;
 
-	double linkCost[DIRECTIONS];
+	MazeCell* last(){
+		return cells[cells.size()-1];
+	}
 
-	int x, y;
+	void addCell(MazeCell* cell){
+		cells.push_back(cell);
+	}
 
-	double g;
-	double rhs;
-	double h;
-	double key[2];
+	void copy(IdaStarPath* p) {
+		if (p == nullptr)
+			return;
+		p->cost = this->cost;
+		for (int i=0; i<p->cells.size(); i++)
+			cells.push_back(p->cells[i]);
+	}
 
-	//---------------------
-	//TYPE: 0 - traversable, 1 - blocked, 9 - unknown, 6 - start vertex, 7 - goal vertex
-	char type;
-	//----------------------
-
+	bool reaches(MazeCell* pGoal){
+		if (pGoal ==  nullptr)
+			return false;
+		MazeCell* u = last();
+		return (u->row == pGoal->row && u->col == pGoal->col);
+	}
 };
 
 extern bool SHOW_MAP_DETAILS;

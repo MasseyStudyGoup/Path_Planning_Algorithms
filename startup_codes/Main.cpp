@@ -42,6 +42,7 @@
 #include "graphics.h"
 #include "DStarLite.h"
 #include "LPAstar.h"
+#include "IdaStar.h"
 #include "gridworld.h"
 #include "Util.h"
 
@@ -62,64 +63,73 @@ int maxQLength;
 int qLengthAfterSearch;
 
 vector<vertex*> g_changed;
-char g_algorithm = ALGO_DSTARTLIET;
+char g_algorithm = ALGO_IDASTAR; //ALGO_LPASTAR; //ALGO_DSTARTLIET //ALGO_IDASTAR;
 ///////////////////////////////////////////////////////////////////////////////
 DStarLite* g_dsl = nullptr;
 LpaStar* g_lpas = nullptr;
+IdaStar* g_idas = nullptr;
 GridWorld grid_world;
 bool findPath();
 bool SHOW_MAP_DETAILS;
 ///////////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION
 ///////////////////////////////////////////////////////////////////////////////
-void updateData(bool fromMazeToMap){
-	if (g_lpas != nullptr && g_algorithm == ALGO_LPASTAR){ //LP A*
-		if (fromMazeToMap){
-			//copyMazeToDisplayMap(grid_world, g_lpas);
-		}
-		else{
-			//copyDisplayMapToMaze(grid_world, g_lpas);
-		}
-	}
-	else if(g_dsl != nullptr) { // must be D* star lite
+void updateData(bool fromMazeToMap) {
+	if (g_lpas != nullptr && g_algorithm == ALGO_LPASTAR) { //LP A*
 		for (int i = 0; i < grid_world.getGridWorldRows(); i++) {
 			for (int j = 0; j < grid_world.getGridWorldCols(); j++) {
-				if (fromMazeToMap){
-					g_dsl->m_maze[i][j].copyTo(&grid_world.map[i][j]);
+				if (fromMazeToMap) {
+					g_lpas->m_maze[i][j].copyTo(&grid_world.map[i][j]);
+				} else {
+					g_lpas->m_maze[i][j].copyFrom(grid_world.map[i][j]);
 				}
-				else{
+			}
+		}
+	} else if (g_dsl != nullptr) {
+		for (int i = 0; i < grid_world.getGridWorldRows(); i++) {
+			for (int j = 0; j < grid_world.getGridWorldCols(); j++) {
+				if (fromMazeToMap) {
+					g_dsl->m_maze[i][j].copyTo(&grid_world.map[i][j]);
+				} else {
 					g_dsl->m_maze[i][j].copyFrom(grid_world.map[i][j]);
-					cout<<"row="<<g_dsl->m_maze[i][j].row<<", col="<<g_dsl->m_maze[i][j].col<<endl;
+				}
+			}
+		}
+	} else if (g_idas != nullptr){
+		for (int i = 0; i < grid_world.getGridWorldRows(); i++) {
+			for (int j = 0; j < grid_world.getGridWorldCols(); j++) {
+				if (fromMazeToMap) {
+					g_idas->m_maze[i][j].copyTo(&grid_world.map[i][j]);
+				} else {
+					g_idas->m_maze[i][j].copyFrom(grid_world.map[i][j]);
 				}
 			}
 		}
 	}
 }
-void updateH(){
-	if (g_algorithm == ALGO_LPASTAR){
-		g_lpas->updateHValues();
-	}
-	else{
+void updateH() {
+	if (g_algorithm == ALGO_LPASTAR) {
+		g_lpas->updateH();
+	} else {
 		g_dsl->updateH();
 
 	}
 	updateData(true); //from maze to map
 }
 
-void updateKey(){
-	if (g_algorithm == ALGO_LPASTAR){
-		g_lpas->updateAllKeyValues();
-	}
-	else{
+void updateKey() {
+	if (g_algorithm == ALGO_LPASTAR) {
+		g_lpas->updateKey();
+	} else {
 		g_dsl->updateKey();
 	}
 	updateData(true); //from maze to map
 }
 
 //return nullptr if selected an vertex on the boundry
-vertex* getSelectedVertex(int rowSelected, int colSelected){
-	if ((rowSelected > 1) && (rowSelected < GRIDWORLD_ROWS)
-			&& (colSelected > 1) && (colSelected < GRIDWORLD_COLS)) {
+vertex* getSelectedVertex(int rowSelected, int colSelected) {
+	if ((rowSelected > 1) && (rowSelected < GRIDWORLD_ROWS) && (colSelected > 1)
+			&& (colSelected < GRIDWORLD_COLS)) {
 		return grid_world.getVertex(rowSelected - 1, colSelected - 1);
 	}
 
@@ -165,8 +175,10 @@ void runSimulation(char *fileName) {
 
 	vertex start = grid_world.getStartVertex();
 	vertex goal = grid_world.getGoalVertex();
-	cout << "(start.col = " << start.col << ", start.row = " << start.row << ")"<< endl;
-	cout << "(goal.col = " << goal.col << ", goal.row = " << goal.row << ")"<< endl;
+	cout << "(start.col = " << start.col << ", start.row = " << start.row << ")"
+			<< endl;
+	cout << "(goal.col = " << goal.col << ", goal.row = " << goal.row << ")"
+			<< endl;
 
 	//----------------------------------------------------------------
 	worldBoundary = grid_world.getWorldBoundary();
@@ -182,18 +194,15 @@ void runSimulation(char *fileName) {
 		action = getKey();
 		if (action == 105) {
 			SHOW_MAP_DETAILS = true;
-		}
-		else if (action == 104) {
+		} else if (action == 104) {
 			SHOW_MAP_DETAILS = false;
-		}
-		else {
+		} else {
 			//do nothing
 		}
 
-		if (SHOW_MAP_DETAILS){
+		if (SHOW_MAP_DETAILS) {
 			grid_world.displayMapWithDetails();
-		}
-		else{
+		} else {
 			grid_world.displayMap();
 		}
 
@@ -202,20 +211,19 @@ void runSimulation(char *fileName) {
 		case 1000:
 			break;
 		case 1001:  //ENTER KEY
-			if(findPath()){
+			if (findPath()) {
 				g_changed.empty();
 				updateData(true); //from maze to map
 				grid_world.setSearchStatus(1);
-				grid_world.displayPath();
-			}
-			else {
+			} else {
 				grid_world.setSearchStatus(-1);
 			}
 			break;
 		case 1: //Block selected cell
 			v = getSelectedVertex(rowSelected, colSelected);
 			if (v != nullptr && v->type != T_BLOCKED) {
-				grid_world.setMapTypeValue(rowSelected - 1, colSelected - 1, T_BLOCKED);
+				grid_world.setMapTypeValue(rowSelected - 1, colSelected - 1,
+						T_BLOCKED);
 				grid_world.initialiseMapConnections();
 				//re-search
 				grid_world.setSearchStatus(0);
@@ -234,24 +242,27 @@ void runSimulation(char *fileName) {
 			grid_world.displayMapWithKeyDetails();
 			break;
 		case 107:
-			if (g_algorithm != ALGO_LPASTAR){
+			if (g_algorithm != ALGO_LPASTAR) {
 				g_algorithm = ALGO_LPASTAR;
 				grid_world.setSearchStatus(0);
 			}
 			break;
 		case 108:
-			if (g_algorithm != ALGO_DSTARTLIET){
+			if (g_algorithm != ALGO_DSTARTLIET) {
 				g_algorithm = ALGO_DSTARTLIET;
 				grid_world.setSearchStatus(0);
 			}
 			break;
 		case 15:
 			if (rowSelected != -1 && colSelected != -1) {
-				grid_world.displayVertexConnections(colSelected - 1, rowSelected - 1);
+				grid_world.displayVertexConnections(colSelected - 1,
+						rowSelected - 1);
 				rowSelected = -1;
 				colSelected = -1;
 			} else {
-				cout<< "invalid new START vertex, please select a new START vertex first."<< endl;
+				cout
+						<< "invalid new START vertex, please select a new START vertex first."
+						<< endl;
 				break;
 			}
 			action = -1;
@@ -281,7 +292,8 @@ void runSimulation(char *fileName) {
 			//set selected cell as the NEW START VERTEX
 			if ((rowSelected > 1) && (rowSelected < GRIDWORLD_ROWS)
 					&& (colSelected > 1) && (colSelected < GRIDWORLD_COLS)) {
-				grid_world.setMapTypeValue(rowSelected - 1, colSelected - 1, '6');
+				grid_world.setMapTypeValue(rowSelected - 1, colSelected - 1,
+						'6');
 				s.row = rowSelected - 1;
 				s.col = colSelected - 1;
 				grid_world.setStartVertex(s);
@@ -290,7 +302,9 @@ void runSimulation(char *fileName) {
 				rowSelected = -1;
 				colSelected = -1;
 			} else {
-				cout<< "invalid new START vertex, please select a new START vertex first."<< endl;
+				cout
+						<< "invalid new START vertex, please select a new START vertex first."
+						<< endl;
 				break;
 			}
 			//--------------------------------------------
@@ -329,7 +343,9 @@ void runSimulation(char *fileName) {
 				rowSelected = -1;
 				colSelected = -1;
 			} else {
-				cout<< "invalid new GOAL vertex, please select a new GOAL vertex first."<< endl;
+				cout
+						<< "invalid new GOAL vertex, please select a new GOAL vertex first."
+						<< endl;
 				action = -1;
 				break;
 			}
@@ -361,7 +377,8 @@ void runSimulation(char *fileName) {
 		case 12: //make cell Traversable
 			v = getSelectedVertex(rowSelected, colSelected);
 			if (v->type != T_TRAVERSABLE) {
-				grid_world.setMapTypeValue(rowSelected - 1, colSelected - 1, T_TRAVERSABLE);
+				grid_world.setMapTypeValue(rowSelected - 1, colSelected - 1,
+						T_TRAVERSABLE);
 				grid_world.initialiseMapConnections();
 				grid_world.setSearchStatus(0);
 				g_changed.push_back(v);
@@ -531,20 +548,31 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-bool findPath(){
+bool findPath() {
 	vertex start = grid_world.getStartVertex();
 	vertex goal = grid_world.getGoalVertex();
 
-	if (g_algorithm == ALGO_LPASTAR){ //LP A*
-		g_lpas = new LpaStar(grid_world.getGridWorldRows(), grid_world.getGridWorldCols());
+	if (g_algorithm == ALGO_LPASTAR) { //LP A*
+		g_lpas = new LpaStar(grid_world.getGridWorldRows(),
+				grid_world.getGridWorldCols());
+		g_lpas->setStart(start.row, start.col);
+		g_lpas->setGoal(goal.row, goal.col);
 		updateData(false);
-	}
-	else { // must be D* star lite
-		g_dsl = new DStarLite(grid_world.getGridWorldRows(), grid_world.getGridWorldCols());
+		return g_lpas->findPath();
+	} else if (g_algorithm == ALGO_DSTARTLIET) { // must be D* star lite
+		g_dsl = new DStarLite(grid_world.getGridWorldRows(),
+				grid_world.getGridWorldCols());
 		g_dsl->setStart(start.row, start.col);
 		g_dsl->setGoal(goal.row, goal.col);
 		updateData(false); //from map to maze
 		return g_dsl->findPath();
+	} else{
+		g_idas = new IdaStar(grid_world.getGridWorldRows(),
+				grid_world.getGridWorldCols());
+		g_idas->setStart(start.row, start.col);
+		g_idas->setGoal(goal.row, goal.col);
+		updateData(false); //from map to maze
+		return g_idas->findPath();
 	}
 
 	return true;
