@@ -566,7 +566,8 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-bool findPath() {
+
+bool findPath() { // this findPath is defined and used by the main function.
 	vertex start = grid_world.getStartVertex();
 	vertex goal = grid_world.getGoalVertex();
 
@@ -582,8 +583,9 @@ bool findPath() {
 				grid_world.getGridWorldCols());
 		g_dsl->setStart(start.row, start.col);
 		g_dsl->setGoal(goal.row, goal.col);
-		updateData(false); //from map to maze
-		return g_dsl->findPath();
+		updateData(false); //copy data from map to maze
+		return g_dsl->findPath(); //g_dsl is the instance of our defined class DstarLite
+		
 	} else{
 		g_idas = new IdaStar(grid_world.getGridWorldRows(),
 				grid_world.getGridWorldCols());
@@ -591,6 +593,7 @@ bool findPath() {
 		g_idas->setGoal(goal.row, goal.col);
 		updateData(false); //from map to maze
 		return g_idas->findPath();
+>>>>>>> master
 	}
 
 	return true;
