@@ -566,12 +566,9 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-<<<<<<< HEAD
-bool findPath(){ // this findPath is defined and used by the main function.
-=======
-bool findPath() {
+
+bool findPath() { // this findPath is defined and used by the main function.
 	vertex start = grid_world.getStartVertex();
->>>>>>> master
 	vertex goal = grid_world.getGoalVertex();
 
 	if (g_algorithm == ALGO_LPASTAR) { //LP A*
@@ -586,12 +583,9 @@ bool findPath() {
 				grid_world.getGridWorldCols());
 		g_dsl->setStart(start.row, start.col);
 		g_dsl->setGoal(goal.row, goal.col);
-<<<<<<< HEAD
 		updateData(false); //copy data from map to maze
 		return g_dsl->findPath(); //g_dsl is the instance of our defined class DstarLite
-=======
-		updateData(false); //from map to maze
-		return g_dsl->findPath();
+		
 	} else{
 		g_idas = new IdaStar(grid_world.getGridWorldRows(),
 				grid_world.getGridWorldCols());

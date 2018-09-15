@@ -43,6 +43,9 @@ void LpaStar::initialise() {
 
 }
 
+/* Compare Sstart and current vertex Heuristic 
+and Manhattan distance
+*/
 double LpaStar::calcH(MazeCell* s) {
 	int diffY = abs(m_pGoal->row - s->row);
 	int diffX = abs(m_pGoal->col - s->col);
@@ -55,6 +58,9 @@ double LpaStar::calcH(MazeCell* s) {
 	return s->h;
 }
 
+/* Using calcH function to update vertex 
+heristic value and save it to maze
+*/
 void LpaStar::updateH() {
 	for (int i = 0; i < m_rows; i++) {
 		for (int j = 0; j < m_cols; j++)
